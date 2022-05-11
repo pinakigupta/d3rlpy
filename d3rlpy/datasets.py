@@ -1,6 +1,6 @@
 # pylint: disable=unused-import,too-many-return-statements
 
-import os
+import os, sys
 import random
 import re
 from typing import List, Tuple
@@ -11,6 +11,8 @@ import numpy as np
 
 from .dataset import Episode, MDPDataset, Transition
 from .envs import ChannelFirst
+# from BehaviorRL import *
+
 
 DATA_DIRECTORY = "d3rlpy_data"
 DROPBOX_URL = "https://www.dropbox.com/s"
@@ -19,6 +21,30 @@ CARTPOLE_RANDOM_URL = f"{DROPBOX_URL}/4lgai7tgj84cbov/cartpole_random_v1.1.0.h5?
 PENDULUM_URL = f"{DROPBOX_URL}/ukkucouzys0jkfs/pendulum_v1.1.0.h5?dl=1"
 PENDULUM_RANDOM_URL = f"{DROPBOX_URL}/hhbq9i6ako24kzz/pendulum_random_v1.1.0.h5?dl=1"  # pylint: disable=line-too-long
 
+def get_urban_env(env_id) -> Tuple[MDPDataset, gym.Env]:
+    # import sys
+    # BehaviorRL_path = os.path.join(os.getcwd(), "BehaviorRL") # Update path to scenario-automation if necessary
+    # sys.path.append(BehaviorRL_path)
+    # import BehaviorRL.urban_env.vehicle
+    import urban_env
+
+    from urban_env.vehicle.control import ControlledVehicle
+    from ray.tune import register_env
+    from urban_env.envs.two_way_env import TwoWayEnv
+    from urban_env.envs.abstract import AbstractEnv    
+    register_env('multilane-v0', lambda config: urban_env.envs.MultilaneEnv(config))
+    register_env('merge-v0', lambda config: urban_env.envs.MergeEnv(config))
+    register_env('roundabout-v0', lambda config: urban_env.envs.RoundaboutEnv(config))
+    register_env('two-way-v0', lambda config: urban_env.envs.TwoWayEnv(config))
+    register_env('parking-v0', lambda config: urban_env.envs.ParkingEnv(config))
+    register_env('parking_2outs-v0', lambda config: urban_env.envs.ParkingEnv_2outs(config))
+    register_env('LG-SIM-ENV-v0', lambda config: urban_env.envs.LG_Sim_Env(config))
+    register_env('multitask-v0', lambda config: MultiTaskEnv(config))       
+    env = gym.make(env_id)
+    file_name = "env1234"
+    data_path = os.path.join(os.getcwd(), file_name)
+    dataset = MDPDataset.load(data_path)
+    return dataset, env
 
 def get_cartpole(dataset_type: str = "replay") -> Tuple[MDPDataset, gym.Env]:
     """Returns cartpole dataset and environment.
@@ -328,7 +354,7 @@ ATARI_GAMES = [
 ]
 
 
-def get_dataset(env_name: str) -> Tuple[MDPDataset, gym.Env]:
+def get_dataset(env_name: str, env_id = None) -> Tuple[MDPDataset, gym.Env]:
     """Returns dataset and envrironment by guessing from name.
 
     This function returns dataset by matching name with the following datasets.
@@ -364,7 +390,9 @@ def get_dataset(env_name: str) -> Tuple[MDPDataset, gym.Env]:
         tuple of :class:`d3rlpy.dataset.MDPDataset` and gym environment.
 
     """
-    if env_name == "cartpole-replay":
+    if env_name == "urban_env":
+        return get_urban_env(env_id)
+    elif env_name == "cartpole-replay":
         return get_cartpole(dataset_type="replay")
     elif env_name == "cartpole-random":
         return get_cartpole(dataset_type="random")

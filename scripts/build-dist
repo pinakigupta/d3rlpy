@@ -2,9 +2,21 @@
 
 # clean
 rm -rf d3rlpy.egg-info
+rm -rf urban_env.egg-info
 rm -rf dist
 rm -rf build
+rm -rf *.whl
 
-python setup.py test
 
-python setup.py sdist bdist_wheel
+
+python3 setup.py test
+
+python3 setup.py bdist_wheel 
+
+# pip3 wheel d3rlpy
+
+python3 -m pip install  /home/pinakigupta/Documents/BehaviorRL/dist/*.whl 
+# python3 -m pip install /home/pinakigupta/Documents/BehaviorRL/urban_env/*.whl 
+
+# python3 -m pip install --force-reinstall dist/*.whl 
+# python3 BehaviorRL/setup.py sdist bdist_wheel

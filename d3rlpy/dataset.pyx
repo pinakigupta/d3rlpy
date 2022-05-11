@@ -550,7 +550,7 @@ class MDPDataset:
             actions = f['actions'][()]
             rewards = f['rewards'][()]
             terminals = f['terminals'][()]
-            discrete_action = f['discrete_action'][()]
+            discrete_action = True 
 
             # for backward compatibility
             if 'episode_terminals' in f:

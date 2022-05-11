@@ -52,6 +52,7 @@ class TorchImplBase(AlgoImplBase):
     @eval_api
     @torch_api(scaler_targets=["x"])
     def predict_best_action(self, x: torch.Tensor) -> np.ndarray:
+        x = x.unsqueeze(0)
         assert x.ndim > 1, "Input must have batch dimension."
 
         with torch.no_grad():
